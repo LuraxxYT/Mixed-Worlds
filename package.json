@@ -1,0 +1,15 @@
+{
+  "name": "mixed-worlds",
+  "version": "1.0.0",
+  "description": "First-person procedural cave multiplayer prototype with Google Sign-In",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}
