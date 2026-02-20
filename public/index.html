@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mixed Worlds — FPS Multiplayer Höhlen</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="hud">
+      <div class="card" id="login-card">
+        <h1>Mixed Worlds</h1>
+        <p>Procedural Noise-Terrain + Höhlen + FPS-Multiplayer.</p>
+        <p class="hint">Maus: umsehen · WASD: laufen · Space/Shift: hoch/runter in Höhlen.</p>
+        <button id="google-login">Mit Google anmelden</button>
+        <p id="login-status"></p>
+      </div>
+      <div class="card hidden" id="info-card">
+        <p id="player-label"></p>
+        <p>Verbunden: <span id="player-count">1</span></p>
+      </div>
+    </div>
+    <canvas id="scene"></canvas>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="/firebase-config.js"></script>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
