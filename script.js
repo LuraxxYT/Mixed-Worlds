@@ -11,6 +11,39 @@ let z = 10;
 let activeHostDir = null;
 let hostMode = false;
 
+const protectedHostFiles = new Set([
+  "/index.html",
+  "/styles.css",
+  "/script.js",
+  "/os-manifest.json"
+]);
+const protectedHostPrefixes = ["/System/", "/assets/"];
+
+function normalizePath(path) {
+  const fixed = ("/" + pathParts(path).join("/"));
+  return fixed === "" ? "/" : fixed;
+}
+
+function isProtectedHostPath(path) {
+  const p = normalizePath(path);
+  if (protectedHostFiles.has(p)) return true;
+  return protectedHostPrefixes.some((prefix) => p.startsWith(prefix));
+}
+
+async function validateProjectDirectory(dirHandle) {
+  if (!dirHandle || dirHandle.name !== "Mixed-Worlds") return false;
+  const required = ["index.html", "styles.css", "script.js"];
+  for (const file of required) {
+    let exists = false;
+    for await (const [name, entry] of dirHandle.entries()) {
+      if (name === file && entry.kind === "file") { exists = true; break; }
+    }
+    if (!exists) return false;
+  }
+  return true;
+}
+
+
 const iconMap = {
   folder: "assets/icons/folder.svg",
   file: "assets/icons/file.svg",
@@ -290,7 +323,10 @@ function openExplorer(path = "/") {
 
     content.querySelector("#bind-host").onclick = async () => {
       if (!window.showDirectoryPicker) return showError("Dein Browser unterstützt keinen echten Ordnerzugriff (File System Access API). Nutze Chrome/Edge.");
-      activeHostDir = await window.showDirectoryPicker({ mode: "readwrite" });
+      const picked = await window.showDirectoryPicker({ mode: "readwrite" });
+      const valid = await validateProjectDirectory(picked);
+      if (!valid) return showError("Bitte wähle ausschließlich den Projektordner 'Mixed-Worlds' aus.");
+      activeHostDir = picked;
       hostMode = true;
       openExplorer("/");
     };
@@ -451,7 +487,10 @@ async function uploadInto(currentPath, refresh) {
       if (!window.showDirectoryPicker) {
         showError("Dein Browser unterstützt keinen echten Ordnerzugriff. Bitte nutze Chrome oder Edge.");
       } else {
-        activeHostDir = await window.showDirectoryPicker({ mode: "readwrite" });
+        const picked = await window.showDirectoryPicker({ mode: "readwrite" });
+        const valid = await validateProjectDirectory(picked);
+        if (!valid) return showError("Bitte wähle ausschließlich den Projektordner 'Mixed-Worlds' aus.");
+        activeHostDir = picked;
         hostMode = true;
       }
     }
@@ -653,6 +692,8 @@ async function renderHostList(container, rootHandle, path, setPath, refresh) {
       else openHostFile(`${path === "/" ? "" : path}/${name}`);
     });
     btn(actions, "Löschen", async () => {
+      const fullPath = `${path === "/" ? "" : path}/${name}`;
+      if (isProtectedHostPath(fullPath)) return showError("Geschützte Datei: Löschen nicht erlaubt.");
       await h.removeEntry(name, { recursive: true });
       await refresh();
     });
@@ -680,6 +721,10 @@ async function readHostFile(path) {
 }
 
 async function writeHostFile(path, content, create = false) {
+  if (isProtectedHostPath(path)) {
+    showError("Geschützte Datei: Bearbeiten nicht erlaubt.");
+    return;
+  }
   const parts = pathParts(path);
   const name = parts.pop();
   const dir = await getHostHandle("/" + parts.join("/"));
@@ -688,6 +733,8 @@ async function writeHostFile(path, content, create = false) {
 }
 
 async function openHostFile(path) {
+  const safePath = normalizePath(path);
+  if (isProtectedHostPath(safePath)) return showError("Geschützte Datei: Zugriff nur lesend im Systembereich.");
   const text = await readHostFile(path);
   const name = pathParts(path).at(-1) || "Datei";
   if (name.endsWith(".bos") || name.endsWith(".html")) openHtmlApp(name, text || "");
