@@ -29,15 +29,27 @@
     <div id="desktop-screen" class="screen">
       <div id="desktop"></div>
 
-      <aside id="start-menu" class="hidden glass">
-        <h3>🚀 Start</h3>
-        <div class="start-actions">
-          <button data-open-app="explorer.bos">📁 Explorer</button>
-          <button data-open-app="editor.bos">📝 Editor</button>
-          <button data-open-app="settings.bos">⚙️ Einstellungen</button>
-          <button data-open-app="store.bos">🧩 App Hub</button>
-          <button data-open-app="about.bos">ℹ️ Über</button>
-          <button id="logout-btn">🚪 Abmelden</button>
+      <aside id="start-menu" class="hidden">
+        <div class="start-head">
+          <input id="start-search" type="text" placeholder="🔎 Suche nach Apps, Dateien oder Einstellungen" />
+        </div>
+        <div class="start-section-title"><span>Angeheftet</span><span>Alle Apps</span></div>
+        <div class="pinned-grid">
+          <button class="pin" data-open-app="explorer.bos"><span>📁</span><small>Explorer</small></button>
+          <button class="pin" data-open-app="editor.bos"><span>📝</span><small>Editor</small></button>
+          <button class="pin" data-open-app="settings.bos"><span>⚙️</span><small>Einstellungen</small></button>
+          <button class="pin" data-open-app="store.bos"><span>🧩</span><small>App Hub</small></button>
+          <button class="pin" data-open-app="about.bos"><span>ℹ️</span><small>Über</small></button>
+        </div>
+        <div class="start-section-title"><span>Empfohlen</span><span>Mehr</span></div>
+        <div class="recommended">
+          <div>📄 BrowserOS-Handbuch</div>
+          <div>🧩 Letzte .bos-App</div>
+          <div>📝 Zuletzt bearbeitet</div>
+        </div>
+        <div class="start-footer">
+          <span>👤 Admin</span>
+          <button id="logout-btn">⏻ Abmelden</button>
         </div>
       </aside>
 

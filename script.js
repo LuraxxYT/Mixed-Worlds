@@ -396,7 +396,7 @@ function btn(parent, label, onClick) {
 function deleteVirtual(path, cb = renderDesktop) {
   const n = getNode(path);
   if (!n) return;
-  if (n.system) return showError("Konte nicht gelöscht werden ERROR Acsses denied");
+  if (n.system) return showError("Konnte nicht gelöscht werden. Fehler: Zugriff verweigert.");
   const { parent, name } = getParent(path);
   delete parent.children[name];
   saveState();
@@ -407,7 +407,7 @@ function deleteVirtual(path, cb = renderDesktop) {
 function renameVirtual(path, cb = renderDesktop) {
   const n = getNode(path);
   if (!n) return;
-  if (n.system) return showError("Konte nicht bearbeitet werden ERROR Acsses denied");
+  if (n.system) return showError("Konnte nicht bearbeitet werden. Fehler: Zugriff verweigert.");
   const newName = prompt("Neuer Name:", n.name);
   if (!newName || newName === n.name) return;
   const { parent, name } = getParent(path);
@@ -422,7 +422,7 @@ function renameVirtual(path, cb = renderDesktop) {
 function moveVirtual(path, cb = renderDesktop) {
   const n = getNode(path);
   if (!n) return;
-  if (n.system) return showError("Konte nicht verschoben werden ERROR Acsses denied");
+  if (n.system) return showError("Konnte nicht verschoben werden. Fehler: Zugriff verweigert.");
   const targetPath = prompt("Zielordner, z.B. /Dokumente");
   if (!targetPath) return;
   const target = getNode(targetPath);
@@ -445,6 +445,17 @@ function createShortcutPrompt(targetPath) {
 }
 
 async function uploadInto(currentPath, refresh) {
+  if (!hostMode && !activeHostDir) {
+    const realUpload = confirm("Du bist im virtuellen Modus. Soll stattdessen ein echter Ordner verbunden werden, damit Uploads physisch dort landen?");
+    if (realUpload) {
+      if (!window.showDirectoryPicker) {
+        showError("Dein Browser unterstützt keinen echten Ordnerzugriff. Bitte nutze Chrome oder Edge.");
+      } else {
+        activeHostDir = await window.showDirectoryPicker({ mode: "readwrite" });
+        hostMode = true;
+      }
+    }
+  }
   const input = document.createElement("input");
   input.type = "file"; input.multiple = true; input.accept = ".bos,.html,.txt,.json,*/*";
   input.onchange = async () => {
@@ -493,7 +504,7 @@ function openEditor(path = null) {
         await writeHostFile(path, area.value);
       } else {
         const node = getNode(path);
-        if (node.system) return showError("Konte nicht bearbeitet werden ERROR Acsses denied");
+        if (node.system) return showError("Konnte nicht bearbeitet werden. Fehler: Zugriff verweigert.");
         node.content = area.value; saveState();
       }
       alert("Gespeichert ✅");
