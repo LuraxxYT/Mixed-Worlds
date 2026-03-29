@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrowserOS</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="boot-screen" class="screen active">
+      <div class="boot-logo">BrowserOS</div>
+      <div class="boot-sub">System wird gestartet…</div>
+    </div>
+
+    <div id="login-screen" class="screen">
+      <div class="login-card">
+        <img class="avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User" />
+        <h1>Willkommen bei BrowserOS</h1>
+        <p>Melde dich an, um fortzufahren.</p>
+        <input id="username-input" type="text" placeholder="Benutzername" value="Admin" />
+        <input id="password-input" type="password" placeholder="Passwort" value="browseros" />
+        <button id="login-btn">Anmelden</button>
+        <small>Hinweis: Standardkonto Admin / browseros</small>
+      </div>
+    </div>
+
+    <div id="desktop-screen" class="screen">
+      <div id="desktop"></div>
+
+      <div id="taskbar">
+        <button id="start-btn">☰ BrowserOS</button>
+        <div id="taskbar-apps"></div>
+        <div id="clock"></div>
+      </div>
+
+      <div id="start-menu" class="hidden">
+        <h3>Start</h3>
+        <button data-app="explorer.bos">Explorer</button>
+        <button data-app="editor.bos">Editor</button>
+        <button data-app="settings.bos">Einstellungen</button>
+        <button data-app="about.bos">Über BrowserOS</button>
+        <button id="logout-btn">Abmelden</button>
+      </div>
+    </div>
+
+    <div id="dialog" class="hidden" role="alertdialog" aria-live="assertive">
+      <div class="dialog-box error">
+        <div class="dialog-title">Systemfehler</div>
+        <div class="dialog-body">
+          <div class="error-icon">✖</div>
+          <div id="dialog-message">Konnte nicht gelöscht werden. ERROR Access denied.</div>
+        </div>
+        <button id="dialog-close">OK</button>
+      </div>
+    </div>
+
+    <template id="window-template">
+      <div class="window">
+        <div class="window-titlebar">
+          <span class="window-title"></span>
+          <div class="window-controls">
+            <button class="min-btn">—</button>
+            <button class="max-btn">□</button>
+            <button class="close-btn">✕</button>
+          </div>
+        </div>
+        <div class="window-content"></div>
+      </div>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
