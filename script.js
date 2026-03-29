@@ -12,11 +12,11 @@ let activeHostDir = null;
 let hostMode = false;
 
 const iconMap = {
-  folder: "📁",
-  file: "📄",
-  app: "🧩",
-  shortcut: "🔗",
-  system: "🛡️"
+  folder: "assets/icons/folder.svg",
+  file: "assets/icons/file.svg",
+  app: "assets/icons/app.svg",
+  shortcut: "assets/icons/shortcut.svg",
+  system: "assets/icons/system.svg"
 };
 
 const baseState = {
@@ -58,15 +58,50 @@ const baseState = {
   }
 };
 
-let state = loadState();
-seedDesktop();
-applySettings();
+let state = null;
 
-function loadState() {
+async function loadState() {
   const saved = localStorage.getItem("browserosx_state");
-  return saved ? JSON.parse(saved) : structuredClone(baseState);
+  if (saved) return JSON.parse(saved);
+  const fromDisk = await buildFSFromProjectFiles();
+  const boot = structuredClone(baseState);
+  if (fromDisk) boot.fs = fromDisk;
+  return boot;
 }
 function saveState() { localStorage.setItem("browserosx_state", JSON.stringify(state)); }
+
+async function buildFSFromProjectFiles() {
+  try {
+    const manifestRes = await fetch("os-manifest.json", { cache: "no-store" });
+    if (!manifestRes.ok) return null;
+    const manifest = await manifestRes.json();
+
+    const root = { name: "", type: "folder", children: {} };
+    const folderNames = Object.keys(manifest);
+    for (const folder of folderNames) {
+      root.children[folder] = { name: folder, type: "folder", children: {} };
+      const entries = manifest[folder] || {};
+      for (const [name, kind] of Object.entries(entries)) {
+        const path = `${folder}/${name}`;
+        let content = "";
+        if (kind === "app" || kind === "file" || kind === "system") {
+          const res = await fetch(path, { cache: "no-store" });
+          if (res.ok) content = await res.text();
+        }
+        root.children[folder].children[name] = {
+          name,
+          type: kind === "app" ? "app" : "file",
+          appType: kind === "app" ? (name === "about.bos" ? "html" : "system") : undefined,
+          content,
+          system: kind === "system" || folder === "System"
+        };
+      }
+    }
+    return root;
+  } catch {
+    return null;
+  }
+}
 function show(screen) { Object.values(screens).forEach((el) => el.classList.remove("active")); screens[screen].classList.add("active"); }
 function showError(message) { dialogMessage.textContent = message; dialog.classList.remove("hidden"); }
 
@@ -102,7 +137,7 @@ function getParent(path) {
 
 function iconFor(node) {
   if (node.system) return iconMap.system;
-  return iconMap[node.type] || "📄";
+  return iconMap[node.type] || iconMap.file;
 }
 
 function renderDesktop() {
@@ -111,7 +146,7 @@ function renderDesktop() {
   entries.forEach((entry) => {
     const el = document.createElement("div");
     el.className = "desktop-icon";
-    el.innerHTML = `<div class='glyph'>${iconFor(entry)}</div><div>${entry.name}</div>`;
+    el.innerHTML = `<img class='icon-img' src='${iconFor(entry)}' alt='icon'><div>${entry.name}</div>`;
     el.ondblclick = () => openEntry(`/Desktop/${entry.name}`);
     el.oncontextmenu = (e) => openDesktopContextMenu(e, `/Desktop/${entry.name}`);
     desktop.appendChild(el);
@@ -337,7 +372,7 @@ function renderVirtualList(container, path, onOpenPath) {
 
   rows.forEach((entry) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${iconFor(entry)} ${entry.name}</td><td>${entry.system ? "SYSTEM" : entry.type.toUpperCase()}</td><td><div class='actions'></div></td>`;
+    tr.innerHTML = `<td><img class='mini-icon' src='${iconFor(entry)}' alt='icon'> ${entry.name}</td><td>${entry.system ? "SYSTEM" : entry.type.toUpperCase()}</td><td><div class='actions'></div></td>`;
     const actions = tr.querySelector(".actions");
 
     btn(actions, "Öffnen", () => {
@@ -599,7 +634,8 @@ async function renderHostList(container, rootHandle, path, setPath, refresh) {
 
   for await (const [name, entry] of h.entries()) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${entry.kind === "directory" ? "📁" : "📄"} ${name}</td><td>${entry.kind.toUpperCase()}</td><td><div class='actions'></div></td>`;
+    const hostIcon = entry.kind === "directory" ? iconMap.folder : iconMap.file;
+    tr.innerHTML = `<td><img class="mini-icon" src="${hostIcon}" alt="icon"> ${name}</td><td>${entry.kind.toUpperCase()}</td><td><div class='actions'></div></td>`;
     const actions = tr.querySelector(".actions");
     btn(actions, "Öffnen", async () => {
       if (entry.kind === "directory") { setPath(`${path === "/" ? "" : path}/${name}` || "/"); await refresh(); }
@@ -651,6 +687,7 @@ function escapeHtml(s) { const d = document.createElement("div"); d.textContent 
 function escapeAttr(s) { return (s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;"); }
 
 function clockTick() {
+  if (!state) return;
   const now = new Date();
   const opts = state.settings.use24h
     ? { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }
@@ -669,6 +706,7 @@ startMenu.querySelectorAll("button[data-open-app]").forEach((btn) => {
 });
 
 $("#login-btn").onclick = () => {
+  if (!state) return;
   const user = $("#username-input").value.trim();
   const pass = $("#password-input").value;
   if (user === state.auth.user && pass === state.auth.pass) {
@@ -677,3 +715,11 @@ $("#login-btn").onclick = () => {
 };
 
 setTimeout(() => show("login"), 1200);
+
+
+(async function bootstrap(){
+  state = await loadState();
+  seedDesktop();
+  applySettings();
+  renderDesktop();
+})();

@@ -98,10 +98,17 @@ html, body {
   cursor: default;
 }
 .desktop-icon:hover { background: rgba(255,255,255,.1); }
-.desktop-icon .glyph {
-  font-size: var(--icon-size);
-  line-height: 1;
+.desktop-icon .icon-img {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  object-fit: contain;
   filter: drop-shadow(0 3px 5px rgba(0,0,0,.45));
+}
+
+.mini-icon {
+  width: 18px;
+  height: 18px;
+  vertical-align: text-bottom;
 }
 
 .glass {
