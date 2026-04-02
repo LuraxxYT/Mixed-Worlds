@@ -1,0 +1,18 @@
+{
+  "Desktop": {},
+  "Dokumente": {
+    "readme.txt": "file"
+  },
+  "Downloads": {},
+  "Apps": {
+    "explorer.bos": "app",
+    "editor.bos": "app",
+    "settings.bos": "app",
+    "store.bos": "app",
+    "about.bos": "app"
+  },
+  "System": {
+    "index.html": "system",
+    "shell.core": "system"
+  }
+}

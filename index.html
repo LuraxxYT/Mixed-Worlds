@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrowserOS X</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="boot-screen" class="screen active">
+      <div class="boot-panel">
+        <div class="logo">🧠 BrowserOS X</div>
+        <div class="spinner"></div>
+        <p>System startet…</p>
+      </div>
+    </div>
+
+    <div id="login-screen" class="screen">
+      <div class="login-card">
+        <div class="avatar">👤</div>
+        <h1>Willkommen zurück</h1>
+        <p>Melde dich in BrowserOS X an.</p>
+        <input id="username-input" type="text" value="Admin" placeholder="Benutzername" />
+        <input id="password-input" type="password" value="browseros" placeholder="Passwort" />
+        <button id="login-btn">🔓 Anmelden</button>
+      </div>
+    </div>
+
+    <div id="desktop-screen" class="screen">
+      <div id="desktop"></div>
+
+      <aside id="start-menu" class="hidden">
+        <div class="start-head">
+          <input id="start-search" type="text" placeholder="🔎 Suche nach Apps, Dateien oder Einstellungen" />
+        </div>
+        <div class="start-section-title"><span>Angeheftet</span><span>Alle Apps</span></div>
+        <div class="pinned-grid">
+          <button class="pin" data-open-app="explorer.bos"><span>📁</span><small>Explorer</small></button>
+          <button class="pin" data-open-app="editor.bos"><span>📝</span><small>Editor</small></button>
+          <button class="pin" data-open-app="settings.bos"><span>⚙️</span><small>Einstellungen</small></button>
+          <button class="pin" data-open-app="store.bos"><span>🧩</span><small>App Hub</small></button>
+          <button class="pin" data-open-app="about.bos"><span>ℹ️</span><small>Über</small></button>
+        </div>
+        <div class="start-section-title"><span>Empfohlen</span><span>Mehr</span></div>
+        <div class="recommended">
+          <div>📄 BrowserOS-Handbuch</div>
+          <div>🧩 Letzte .bos-App</div>
+          <div>📝 Zuletzt bearbeitet</div>
+        </div>
+        <div class="start-footer">
+          <span>👤 Admin</span>
+          <button id="logout-btn">⏻ Abmelden</button>
+        </div>
+      </aside>
+
+      <footer id="taskbar" class="glass">
+        <button id="start-btn">⊞</button>
+        <button id="show-desktop-btn">🖥️ Desktop</button>
+        <div id="taskbar-apps"></div>
+        <div id="clock"></div>
+      </footer>
+    </div>
+
+    <div id="context-menu" class="hidden"></div>
+
+    <div id="dialog" class="hidden" role="alertdialog" aria-live="assertive">
+      <div class="dialog-box error">
+        <div class="dialog-title">❌ Fehler</div>
+        <div class="dialog-body">
+          <div class="error-icon">✖</div>
+          <p id="dialog-message"></p>
+        </div>
+        <button id="dialog-close">OK</button>
+      </div>
+    </div>
+
+    <template id="window-template">
+      <section class="window">
+        <header class="window-titlebar">
+          <span class="window-title"></span>
+          <div class="window-controls">
+            <button class="min-btn">➖</button>
+            <button class="max-btn">🗖</button>
+            <button class="close-btn">✖</button>
+          </div>
+        </header>
+        <main class="window-content"></main>
+      </section>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
